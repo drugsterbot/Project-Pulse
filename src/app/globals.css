@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import "@fontsource-variable/instrument-sans";
+
+@theme {
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-ink: #0f1b2d;
+  --color-ink-2: #16263d;
+  --color-ink-3: #223650;
+  --color-canvas: #f4f6fa;
+  --color-line: #e3e8ef;
+}
+
+html { color-scheme: light; }
+body { background: var(--color-canvas); color: var(--color-ink); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 4px; }
+dialog::backdrop { background: rgb(15 27 45 / 0.55); }
+dialog { margin: auto; }
+::selection { background: #bfdbfe; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulse-line { stroke-dasharray: 120; stroke-dashoffset: 120; animation: pulse-draw 1.4s ease-out forwards; }
+  @keyframes pulse-draw { to { stroke-dashoffset: 0; } }
+  .toast-in { animation: toast-in 160ms ease-out; }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } }
+}
+@media print { aside, header { display: none !important; } }
