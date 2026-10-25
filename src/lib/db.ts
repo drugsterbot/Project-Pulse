@@ -10,5 +10,5 @@ function create() {
 }
 
 export const db = globalForPrisma.prisma ?? create();
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+globalForPrisma.prisma = db;
 export type { Prisma } from "@/generated/prisma/client";

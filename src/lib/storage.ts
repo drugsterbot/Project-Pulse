@@ -15,7 +15,11 @@ export interface StorageService {
 
 class LocalStorage implements StorageService {
   // The upload directory is configurable on purpose, so tell the bundler not to trace it.
-  private root = path.resolve(/* turbopackIgnore: true */ process.env.UPLOAD_DIR ?? "./uploads");
+  // In serverless environments (like Vercel), disk writes are only permitted inside /tmp.
+  private root = path.resolve(
+    /* turbopackIgnore: true */
+    process.env.UPLOAD_DIR ?? (process.env.VERCEL ? "/tmp/uploads" : "./uploads")
+  );
   private resolve(key: string) {
     const full = path.resolve(/* turbopackIgnore: true */ this.root, key);
     if (!full.startsWith(this.root + path.sep)) throw new Error("Invalid storage key");
