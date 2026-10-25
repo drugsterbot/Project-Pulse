@@ -45,28 +45,28 @@ CREATE TYPE "RiskStatus" AS ENUM ('OPEN', 'MITIGATING', 'RESOLVED', 'ACCEPTED');
 
 -- CreateTable
 CREATE TABLE "Organization" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "settings" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Organization_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Department" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "orgId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Department_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "orgId" TEXT NOT NULL,
     "departmentId" TEXT,
     "email" TEXT NOT NULL,
@@ -81,37 +81,37 @@ CREATE TABLE "User" (
     "weeklyCapacityHours" INTEGER NOT NULL DEFAULT 40,
     "lastLoginAt" TIMESTAMP(3),
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Team" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "orgId" TEXT NOT NULL,
     "departmentId" TEXT,
     "name" TEXT NOT NULL,
     "leadId" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Team_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TeamMember" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "teamId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "isLead" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TeamMember_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Project" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "orgId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -128,25 +128,25 @@ CREATE TABLE "Project" (
     "clientName" TEXT,
     "archivedAt" TIMESTAMP(3),
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "ProjectMember" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "isClientAccess" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "ProjectMember_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Milestone" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
@@ -157,14 +157,14 @@ CREATE TABLE "Milestone" (
     "progress" INTEGER NOT NULL DEFAULT 0,
     "deliverables" TEXT,
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Milestone_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Task" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "milestoneId" TEXT,
     "title" TEXT NOT NULL,
@@ -184,71 +184,71 @@ CREATE TABLE "Task" (
     "requiredEvidence" BOOLEAN NOT NULL DEFAULT false,
     "completedAt" TIMESTAMP(3),
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TaskAssignee" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "taskId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TaskAssignee_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Subtask" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "taskId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "done" BOOLEAN NOT NULL DEFAULT false,
     "position" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Subtask_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TaskDependency" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "taskId" TEXT NOT NULL,
     "dependsOnId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TaskDependency_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TaskComment" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "taskId" TEXT,
     "reportId" TEXT,
     "authorId" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "mentions" TEXT[],
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TaskComment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TaskAttachment" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "taskId" TEXT NOT NULL,
     "fileId" TEXT NOT NULL,
     "uploaderId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TaskAttachment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "DailyReport" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "authorId" TEXT NOT NULL,
     "reportDate" DATE NOT NULL,
     "status" "ReportStatus" NOT NULL DEFAULT 'DRAFT',
@@ -262,39 +262,39 @@ CREATE TABLE "DailyReport" (
     "reviewComment" TEXT,
     "reviewedAt" TIMESTAMP(3),
     "submittedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "DailyReport_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "DailyReportItem" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "reportId" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "taskId" TEXT,
     "notes" TEXT,
     "hoursSpent" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "progressDelta" INTEGER,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "DailyReportItem_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "DailyReportAttachment" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "reportId" TEXT NOT NULL,
     "fileId" TEXT NOT NULL,
     "uploaderId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "DailyReportAttachment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TimeEntry" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "taskId" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
@@ -305,14 +305,14 @@ CREATE TABLE "TimeEntry" (
     "endedAt" TIMESTAMP(3),
     "reportId" TEXT,
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "TimeEntry_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "ProjectFile" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "taskId" TEXT,
     "milestoneId" TEXT,
@@ -328,56 +328,56 @@ CREATE TABLE "ProjectFile" (
     "currentVersion" INTEGER NOT NULL DEFAULT 1,
     "archivedAt" TIMESTAMP(3),
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "ProjectFile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "FileVersion" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "fileId" TEXT NOT NULL,
     "version" INTEGER NOT NULL,
     "storageKey" TEXT,
     "sizeBytes" INTEGER NOT NULL DEFAULT 0,
     "uploaderId" TEXT NOT NULL,
     "note" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "FileVersion_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Notification" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "type" "NotificationType" NOT NULL,
     "title" TEXT NOT NULL,
     "body" TEXT,
     "href" TEXT,
     "readAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "ActivityLog" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "actorId" TEXT,
     "projectId" TEXT,
     "taskId" TEXT,
     "action" TEXT NOT NULL,
     "summary" TEXT NOT NULL,
     "meta" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "ActivityLog_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Risk" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -386,47 +386,47 @@ CREATE TABLE "Risk" (
     "mitigation" TEXT,
     "ownerId" TEXT,
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Risk_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Announcement" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "authorId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "pinned" BOOLEAN NOT NULL DEFAULT false,
     "deletedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Announcement_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "PasswordResetToken" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "tokenHash" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "usedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "PasswordResetToken_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "LoginAudit" (
-    "id" TEXT NOT NULL DEFAULT 'cuid(',
+    "id" TEXT NOT NULL,
     "userId" TEXT,
     "email" TEXT NOT NULL,
     "success" BOOLEAN NOT NULL,
     "reason" TEXT,
     "ip" TEXT,
     "userAgent" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT 'now(',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "LoginAudit_pkey" PRIMARY KEY ("id")
 );
@@ -682,3 +682,5 @@ ALTER TABLE "PasswordResetToken" ADD CONSTRAINT "PasswordResetToken_userId_fkey"
 
 -- AddForeignKey
 ALTER TABLE "LoginAudit" ADD CONSTRAINT "LoginAudit_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+

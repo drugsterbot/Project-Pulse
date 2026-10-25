@@ -60,8 +60,12 @@ function mockPng(w: number, h: number, hue: [number, number, number]) {
 const tinyPdf = (title: string) => Buffer.from(`%PDF-1.1\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 360 160]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj\n4 0 obj<</Length 60>>stream\nBT /F1 16 Tf 24 90 Td (${title}) Tj ET\nendstream\nendobj\n5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n`);
 function writeSeedFile(name: string, data: Buffer) {
   const key = `seed/${name}`;
-  fs.mkdirSync(path.join(UPLOAD_DIR, "seed"), { recursive: true });
-  fs.writeFileSync(path.join(UPLOAD_DIR, key), data);
+  try {
+    fs.mkdirSync(path.join(UPLOAD_DIR, "seed"), { recursive: true });
+    fs.writeFileSync(path.join(UPLOAD_DIR, key), data);
+  } catch (e) {
+    console.warn("Could not write local seed file (serverless/read-only disk), skipping disk save:", e);
+  }
   return { key, size: data.length };
 }
 
@@ -71,7 +75,7 @@ async function main() {
   }
   console.log("Resetting database…");
   await prisma.$executeRawUnsafe('TRUNCATE TABLE "Organization" CASCADE');
-  fs.rmSync(path.join(UPLOAD_DIR, "seed"), { recursive: true, force: true });
+  try { fs.rmSync(path.join(UPLOAD_DIR, "seed"), { recursive: true, force: true }); } catch {}
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
   const org = await prisma.organization.create({ data: { name: "Meridian Digital", slug: "meridian-digital", settings: { workWeekHours: 40 } } });
@@ -81,38 +85,39 @@ async function main() {
   /* ---------- users ---------- */
   const U: Record<string, { id: string; name: string }> = {};
   const people = [
-    ["ybanti", "Banti Yadav", "superadmin@ppulse.dev", "SUPER_ADMIN", "Delivery", ["Strategy", "Operations"], "Nagpur"],
-    ["ybanti", "Banti Yadav", "admin@ppulse.dev", "ADMIN", "Delivery", ["People ops", "Process"], "Nagpur"],
+    ["superadmin", "Banti Yadav", "superadmin@ppulse.dev", "SUPER_ADMIN", "Delivery", ["Strategy", "Operations"], "Nagpur"],
+    ["admin", "Banti Yadav", "admin@ppulse.dev", "ADMIN", "Delivery", ["People ops", "Process"], "Nagpur"],
 
-    ["mumtaz", "Mumtaz Sheikh", "mumtaz.pm@ppulse.dev", "PROJECT_MANAGER", "Delivery", ["Planning", "Stakeholders"], "Nagpur"],
-    ["ybanti", "Banti Yadav", "ybanti.pm@ppulse.dev", "PROJECT_MANAGER", "Delivery", ["Agile", "Risk management"], "Nagpur"],
+    ["mumtaz_pm", "Mumtaz Sheikh", "mumtaz.pm@ppulse.dev", "PROJECT_MANAGER", "Delivery", ["Planning", "Stakeholders"], "Nagpur"],
+    ["ybanti_pm", "Banti Yadav", "ybanti.pm@ppulse.dev", "PROJECT_MANAGER", "Delivery", ["Agile", "Risk management"], "Nagpur"],
 
-    ["mumtaz", "Mumtaz Sheikh", "mumtaz.lead@projectpulse.dev", "TEAM_LEAD", "Engineering", ["TypeScript", "Architecture", "Postgres"], "Nagpur"],
-    ["ybanti", "Banti Yadav", "ybanti.lead@projectpulse.dev", "TEAM_LEAD", "Design", ["Design systems", "Figma"], "Nagpur"],
+    ["mumtaz_lead", "Mumtaz Sheikh", "mumtaz.lead@projectpulse.dev", "TEAM_LEAD", "Engineering", ["TypeScript", "Architecture", "Postgres"], "Nagpur"],
+    ["ybanti_lead", "Banti Yadav", "ybanti.lead@projectpulse.dev", "TEAM_LEAD", "Design", ["Design systems", "Figma"], "Nagpur"],
 
     ["ybanti", "Banti Yadav", "ybanti@ppulse.dev", "TEAM_MEMBER", "Engineering", ["React", "Node.js", "OAuth"], "Nagpur"],
-
     ["mumtaz", "Mumtaz Sheikh", "mumtaz@ppulse.dev", "TEAM_MEMBER", "Engineering", ["React", "Node.js", "OAuth"], "Nagpur"],
-
     ["ankit", "Ankit Deshmukh", "ankit@ppulse.dev", "TEAM_MEMBER", "Engineering", ["React", "Node.js", "OAuth"], "Nagpur"],
-
     ["nandini", "Nandini Dharme", "nandini@ppulse.dev", "TEAM_MEMBER", "Engineering", ["React", "Node.js", "OAuth"], "Nagpur"],
-
     ["abhishek", "Abhishek Thote", "abhishek@ppulse.dev", "TEAM_MEMBER", "Engineering", ["React", "Node.js", "OAuth"], "Nagpur"],
 
-    // ["aisha", "Aisha Khan", "aisha@projectpulse.dev", "TEAM_MEMBER", "Engineering", ["React", "Node.js", "OAuth"], "Nagpur"],
-    // ["ravi", "Ravi Patel", "ravi@projectpulse.dev", "TEAM_MEMBER", "Engineering", ["Kotlin", "Swift", "APIs"], "Nagpur"],
-    // ["chloe", "Chloe Bennett", "chloe@projectpulse.dev", "TEAM_MEMBER", "Design", ["UI design", "Prototyping"], "Nagpur"],
-    // ["marcus", "Marcus Reed", "marcus@projectpulse.dev", "TEAM_MEMBER", "Quality Assurance", ["Test automation", "Accessibility"], "Nagpur"],
     ["client", "client ", "client@ppulse.dev", "CLIENT_VIEWER", "Delivery", [], "Nagpur"],
     ["jordan", "Jordan Blake", "jordan@projectpulse.dev", "TEAM_MEMBER", "Engineering", ["Go"], "UTC"],
   ] as const;
   for (const [key, name, email, role, dep, skills, timezone] of people) {
     const u = await prisma.user.create({
-      data: { orgId: org.id, name, email, role, departmentId: dept[dep], skills: [...skills], timezone, passwordHash, status: key === "jordan" ? "SUSPENDED" : "ACTIVE", phone: key === "ybanti" ? "+91 98765 43210" : null, lastLoginAt: key === "jordan" ? null : ago(Math.floor(rnd() * 3), 8), weeklyCapacityHours: key === "mumtaz" ? 32 : 40 },
+      data: { orgId: org.id, name, email, role, departmentId: dept[dep], skills: [...skills], timezone, passwordHash, status: key === "jordan" ? "SUSPENDED" : "ACTIVE", phone: key === "ybanti" ? "+91 98765 43210" : null, lastLoginAt: key === "jordan" ? null : ago(Math.floor(rnd() * 3), 8), weeklyCapacityHours: key.includes("mumtaz") ? 32 : 40 },
     });
     U[key] = { id: u.id, name };
   }
+  // Map aliases for existing seed scripts
+  U["sofia"] = U["mumtaz_pm"]!;
+  U["arjun"] = U["ybanti_pm"]!;
+  U["aisha"] = U["nandini"]!;
+  U["ravi"] = U["ankit"]!;
+  U["chloe"] = U["ybanti_lead"]!;
+  U["marcus"] = U["abhishek"]!;
+  U["daniel"] = U["superadmin"]!;
+
   const uid = (k: string) => U[k]!.id;
 
   /* ---------- teams ---------- */
