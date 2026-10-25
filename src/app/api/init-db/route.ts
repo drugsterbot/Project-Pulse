@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import fs from "node:fs";
-import path from "node:path";
+import { initMigrationSql } from "@/lib/migration-sql";
 import bcrypt from "bcryptjs";
 
 export const runtime = "nodejs";
@@ -23,15 +22,9 @@ export async function GET() {
     }
 
     if (!tablesExist) {
-      // Apply migration SQL
-      const migrationPath = path.join(process.cwd(), "prisma/migrations/0001_init/migration.sql");
-      if (fs.existsSync(migrationPath)) {
-        const sql = fs.readFileSync(migrationPath, "utf-8");
-        await db.$executeRawUnsafe(sql);
-        logs.push("Successfully applied migration.sql (created all 26 tables and enums).");
-      } else {
-        logs.push("Warning: prisma/migrations/0001_init/migration.sql not found on disk.");
-      }
+      // Execute the bundled migration SQL directly
+      await db.$executeRawUnsafe(initMigrationSql);
+      logs.push("Successfully applied migration schema (created all 26 tables and enums).");
     }
 
     // 2. Check if users exist

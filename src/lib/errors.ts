@@ -27,6 +27,13 @@ export async function run<T>(fn: () => Promise<T>, message?: string): Promise<Ac
       return { ok: false, error: e.issues[0]?.message ?? "Please check the form.", fieldErrors };
     }
     console.error("[action error]", e);
+    const msg = (e as Error)?.message ?? "";
+    if (msg.includes("does not exist") || msg.includes("relation")) {
+      return { ok: false, error: "Database tables are not created yet. Please visit /api/init-db once in your browser to initialize them." };
+    }
+    if (msg.includes("connect") || msg.includes("SSL") || msg.includes("timeout") || msg.includes("password authentication")) {
+      return { ok: false, error: `Database connection error: ${msg}` };
+    }
     return { ok: false, error: "Something went wrong. Please try again." };
   }
 }

@@ -1,9 +1,10 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-function getConnectionString() {
+export function getConnectionString() {
   return (
     process.env.DATABASE_URL ||
     process.env.projectpulse_PRISMA_DATABASE_URL ||
@@ -16,7 +17,20 @@ function getConnectionString() {
 function create() {
   const connectionString = getConnectionString();
   if (!connectionString) throw new Error("DATABASE_URL is not set. Copy .env.example to .env first.");
-  return new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+  
+  const isCloud =
+    connectionString.includes(".neon.tech") ||
+    connectionString.includes(".supabase.co") ||
+    connectionString.includes("sslmode=require") ||
+    process.env.NODE_ENV === "production";
+
+  const pool = new Pool({
+    connectionString,
+    ssl: isCloud ? { rejectUnauthorized: false } : undefined,
+    max: 10,
+  });
+
+  return new PrismaClient({ adapter: new PrismaPg(pool) });
 }
 
 export const db = globalForPrisma.prisma ?? create();
