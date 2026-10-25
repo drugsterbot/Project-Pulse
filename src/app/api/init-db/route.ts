@@ -11,7 +11,11 @@ export async function GET() {
   try {
     const rawUrl = getConnectionString() || "";
     const masked = rawUrl.replace(/:([^:@]+)@/, ":****@");
-    logs.push(`Connecting to database: ${masked}`);
+    const detectedKeys = Object.keys(process.env).filter((k) =>
+      k.toLowerCase().includes("postgres") || k.toLowerCase().includes("database") || k.toLowerCase().includes("url")
+    );
+    logs.push(`Available database env keys in runtime: ${detectedKeys.join(", ") || "none"}`);
+    logs.push(`Resolved database URL: ${masked}`);
 
     // 1. Check if tables exist by querying User count
     let tablesExist = false;
