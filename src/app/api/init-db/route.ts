@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, getConnectionString } from "@/lib/db";
 import { initMigrationSql } from "@/lib/migration-sql";
 import bcrypt from "bcryptjs";
 
@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const logs: string[] = [];
   try {
-    logs.push("Checking database connection...");
+    const rawUrl = getConnectionString() || "";
+    // Mask password in logs
+    const masked = rawUrl.replace(/:([^:@]+)@/, ":****@");
+    logs.push(`Connecting to database: ${masked}`);
     
     // 1. Check if tables exist by querying User count
     let tablesExist = false;
