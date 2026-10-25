@@ -53,64 +53,40 @@ export async function GET() {
         deptMap[d] = row.id;
       }
 
-      // Create primary admin accounts
-      await db.user.create({
-        data: {
-          orgId: org.id,
-          name: "Banti Yadav",
-          email: "superadmin@ppulse.dev",
-          role: "SUPER_ADMIN",
-          departmentId: deptMap["Delivery"],
-          skills: ["Strategy", "Operations"],
-          timezone: "UTC",
-          passwordHash,
-          status: "ACTIVE",
-        },
-      });
+      // Create all predefined roles and users
+      const allUsers = [
+        { name: "Banti Yadav", email: "superadmin@ppulse.dev", role: "SUPER_ADMIN" as const, dept: "Delivery" },
+        { name: "Banti Yadav", email: "admin@ppulse.dev", role: "ADMIN" as const, dept: "Delivery" },
+        { name: "Mumtaz Sheikh", email: "mumtaz.pm@ppulse.dev", role: "PROJECT_MANAGER" as const, dept: "Delivery" },
+        { name: "Banti Yadav", email: "ybanti.pm@ppulse.dev", role: "PROJECT_MANAGER" as const, dept: "Delivery" },
+        { name: "Mumtaz Sheikh", email: "mumtaz.lead@projectpulse.dev", role: "TEAM_LEAD" as const, dept: "Engineering" },
+        { name: "Banti Yadav", email: "ybanti.lead@projectpulse.dev", role: "TEAM_LEAD" as const, dept: "Design" },
+        { name: "Banti Yadav", email: "ybanti@ppulse.dev", role: "TEAM_MEMBER" as const, dept: "Engineering" },
+        { name: "Mumtaz Sheikh", email: "mumtaz@ppulse.dev", role: "TEAM_MEMBER" as const, dept: "Engineering" },
+        { name: "Ankit Deshmukh", email: "ankit@ppulse.dev", role: "TEAM_MEMBER" as const, dept: "Engineering" },
+        { name: "Nandini Dharme", email: "nandini@ppulse.dev", role: "TEAM_MEMBER" as const, dept: "Engineering" },
+        { name: "Abhishek Thote", email: "abhishek@ppulse.dev", role: "TEAM_MEMBER" as const, dept: "Engineering" },
+        { name: "Client Partner", email: "client@ppulse.dev", role: "CLIENT_VIEWER" as const, dept: "Delivery" },
+        { name: "Jordan Blake", email: "jordan@projectpulse.dev", role: "TEAM_MEMBER" as const, dept: "Engineering", status: "SUSPENDED" as const },
+      ];
 
-      await db.user.create({
-        data: {
-          orgId: org.id,
-          name: "Banti Yadav",
-          email: "admin@ppulse.dev",
-          role: "ADMIN",
-          departmentId: deptMap["Delivery"],
-          skills: ["People ops", "Process"],
-          timezone: "UTC",
-          passwordHash,
-          status: "ACTIVE",
-        },
-      });
+      for (const u of allUsers) {
+        await db.user.create({
+          data: {
+            orgId: org.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            departmentId: deptMap[u.dept],
+            skills: ["Full Stack", "Product Management"],
+            timezone: "UTC",
+            passwordHash,
+            status: u.status ?? "ACTIVE",
+          },
+        });
+      }
 
-      await db.user.create({
-        data: {
-          orgId: org.id,
-          name: "Mumtaz Sheikh",
-          email: "mumtaz.pm@ppulse.dev",
-          role: "PROJECT_MANAGER",
-          departmentId: deptMap["Delivery"],
-          skills: ["Planning", "Stakeholders"],
-          timezone: "UTC",
-          passwordHash,
-          status: "ACTIVE",
-        },
-      });
-
-      await db.user.create({
-        data: {
-          orgId: org.id,
-          name: "Banti Yadav",
-          email: "ybanti.pm@ppulse.dev",
-          role: "PROJECT_MANAGER",
-          departmentId: deptMap["Delivery"],
-          skills: ["Agile", "Risk management"],
-          timezone: "UTC",
-          passwordHash,
-          status: "ACTIVE",
-        },
-      });
-
-      logs.push("Successfully created initial Super Admin and Admin accounts!");
+      logs.push("Successfully created all user accounts across all roles!");
     }
 
     return NextResponse.json({
